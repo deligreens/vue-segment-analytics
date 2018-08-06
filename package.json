@@ -11,21 +11,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kapiche/vue-segment-analytics"
+    "url": "https://github.com/deligreens/vue-segment-analytics"
   },
   "keywords": [
     "segment",
     "analytics"
   ],
   "author": {
-    "name": "Ryan Stuart",
-    "email": "ryan.stuart.85@gmail.com"
+    "name": "Virgil Roger",
+    "email": "virgil.roger@deligreens.com"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Kapiche/vue-segment-analytics/issues"
+    "url": "https://github.com/deligreens/vue-segment-analytics/issues"
   },
-  "homepage": "https://github.com/Kapiche/vue-segment-analytics",
+  "homepage": "https://github.com/deligreens/vue-segment-analytics",
   "devDependencies": {
     "babel-core": "~6.24.1",
     "babel-eslint": "~7.2.3",
@@ -43,6 +43,8 @@
     "webpack-merge": "~4.1.0"
   },
   "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2016": "^6.24.1",
     "load-script": "~1.0.0"
   }
 }

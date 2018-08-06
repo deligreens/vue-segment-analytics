@@ -1,6 +1,6 @@
 /*!
  * vue-segment-analytics v0.3.0
- * (c) 2017 Ryan Stuart
+ * (c) 2018 Virgil Roger
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -12,109 +12,57 @@
 loadScript = 'default' in loadScript ? loadScript['default'] : loadScript;
 
 function init(config, callback) {
-  if (!config.id || !config.id.length) {
-    console.warn('Please enter a Segment.io tracking ID');
-    return;
-  }
-
-  // Create a queue, but don't obliterate an existing one!
-  var analytics = window.analytics = window.analytics || [];
-
-  // If the real analytics.js is already on the page return.
-  if (analytics.initialize) return;
-
-  // If the snippet was invoked already show an error.
-  if (analytics.invoked) {
-    if (window.console && console.error) {
-      console.error('Segment snippet included twice.');
-    }
-    return;
-  }
-
-  // Invoked flag, to make sure the snippet
-  // is never invoked twice.
-  analytics.invoked = true;
-
-  // A list of the methods in Analytics.js to stub.
-  analytics.methods = ['trackSubmit', 'trackClick', 'trackLink', 'trackForm', 'pageview', 'identify', 'reset', 'group', 'track', 'ready', 'alias', 'debug', 'page', 'once', 'off', 'on'];
-
-  // Define a factory to create stubs. These are placeholders
-  // for methods in Analytics.js so that you never have to wait
-  // for it to load to actually record data. The `method` is
-  // stored as the first argument, so we can replay the data.
-  analytics.factory = function (method) {
-    return function () {
-      var args = Array.prototype.slice.call(arguments);
-      if (config.debug === true) {
-        if (window.console && console.log) {
-          console.log('[Segment Analytics Debug]: ' + method + ' method called with ' + args.length + ' args');
-        }
-      } else {
-        args.unshift(method);
-        analytics.push(args);
-        return analytics;
-      }
-    };
-  };
-
-  // Add a version to keep track of what's in the wild.
-  analytics.SNIPPET_VERSION = '4.0.0';
-
-  // For each of our methods, generate a queueing stub.
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = analytics.methods[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var key = _step.value;
-
-      analytics[key] = analytics.factory(key);
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  if (config.debug === false) {
-    var source = 'https://cdn.segment.com/analytics.js/v1/' + config.id + '/analytics.min.js';
-    loadScript(source, function (error, script) {
-      if (error) {
-        console.warn('Ops! Is not possible to load Segment Analytics script');
+    if (!config.id || !config.id.length) {
+        console.warn('Please enter a Segment.io tracking ID');
         return;
-      }
+    }
 
-      var poll = setInterval(function () {
+    (function () {
+        var analytics = window.analytics = window.analytics || [];
+        if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice.");else {
+            analytics.invoked = !0;
+            analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "page", "once", "off", "on"];
+            analytics.factory = function (t) {
+                return function () {
+                    var e = Array.prototype.slice.call(arguments);
+                    e.unshift(t);
+                    analytics.push(e);
+                    return;
+                    analytics;
+                };
+            };
+            for (var t = 0; t < analytics.methods.length; t++) {
+                var e = analytics.methods[t];
+                analytics[e] = analytics.factory(e);
+            }
+            analytics.load = function (t) {
+                var e = document.createElement("script");
+                e.type = "text/javascript";
+                e.async = !0;
+                e.src = ("https:" === document.location.protocol ? "https://" : "http://") + "cdn.segment.com/analytics.js/v1/" + t + "/analytics.min.js";
+                var n = document.getElementsByTagName("script")[0];
+                n.parentNode.insertBefore(e, n);
+            };
+            analytics.SNIPPET_VERSION = "3.1.0";
+            analytics.load(config.id);
+            // Make sure to remove any calls to `analytics.page()`!
+        }
+    })();
+
+    var poll = setInterval(function () {
         if (!window.analytics) {
-          return;
+            return;
         }
 
         clearInterval(poll);
 
         // the callback is fired when window.analytics is available and before any other hit is sent
         if (callback && typeof callback === 'function') {
-          callback();
+            callback();
         }
-      }, 10);
-    });
-  } else {
-    // Still run the callback in debug mode.
-    if (callback && typeof callback === 'function') {
-      callback();
-    }
-  }
+    }, 10);
 
-  return window.analytics;
+    return window.analytics;
 }
 
 /**
@@ -130,18 +78,18 @@ function install(Vue) {
     pageCategory: ''
   }, options);
 
-  var analytics = init(config, function () {
-    // Page tracking
-    if (config.router !== undefined) {
-      config.router.afterEach(function (to, from) {
-        // Make a page call for each navigation event
-        window.analytics.page(config.pageCategory, to.name || '', {
-          path: to.fullPath,
-          referrer: from.fullPath
-        });
+  var analytics = init(config, function () {});
+
+  // Page tracking
+  if (config.router !== undefined) {
+    config.router.afterEach(function (to, from) {
+      // Make a page call for each navigation event
+      analytics.page(config.pageCategory, to.name || '', {
+        path: to.fullPath,
+        referrer: from.fullPath
       });
-    }
-  });
+    });
+  }
 
   // Setup instance access
   Object.defineProperty(Vue, '$segment', {
