@@ -10,6 +10,8 @@ export default function init (config, callback) {
     var
         analytics = window.analytics = window.analytics || [];
     if (!analytics.initialize)
+    if (analytics.invoked) window.console && console.warn && console.warn("Segment snippet included twice.");
+    else {
         analytics.invoked = !0;
         analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "page", "once", "off", "on"];
         analytics.factory = function(t) {
@@ -39,6 +41,7 @@ export default function init (config, callback) {
         analytics.SNIPPET_VERSION = "3.1.0";
         analytics.load(config.id);
         // Make sure to remove any calls to `analytics.page()`!
+    }
   })();
 
   const poll = setInterval(function () {
